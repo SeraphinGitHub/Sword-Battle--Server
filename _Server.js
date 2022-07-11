@@ -24,11 +24,8 @@ io.on("connection", socket => {
 
    console.log("Player Connected !");
    
-   gameHandler.initSocketList(socket);
-   gameHandler.createBattle(socket, playerHandler.initBehavior);
-   gameHandler.findBattle(socket);
-   gameHandler.joinBattle(socket, playerHandler.initBehavior);
-   gameHandler.leaveBattle(socket);
+   gameHandler.init(socket);
+   playerHandler.init(socket);
 });
 
 server.listen(process.env.PORT || 3000, () => {

@@ -19,12 +19,6 @@ let socketList = {};
 // =====================================================================
 // Methods
 // =====================================================================
-exports.initSocketList = (socket) => {
-   battleID++;
-   socket.id = battleID;
-   socketList[socket.id] = socket;
-}
-
 exports.check = (data, dataType, callback) => {
    
    if(data && typeof(data) === dataType) {
@@ -32,9 +26,18 @@ exports.check = (data, dataType, callback) => {
    }
 }
 
-exports.createBattle = (socket, callback) => {
+const initSocketList = (socket) => {
+   battleID++;
+   socket.id = battleID;
+   socketList[socket.id] = socket;
+}
+
+const createBattle = (socket) => {
    socket.on("createBattle", (battleObj) =>  {
    
+      console.log(battleObj); // ******************************************************
+      // ==> [ 'Séraphin', 'Battle 1' ]
+
       this.check(battleObj, "object", () => {
 
          const battle = new Battle(socket.id);
@@ -43,13 +46,11 @@ exports.createBattle = (socket, callback) => {
          battle.ownerPlayer = creatingPlayer;
          battle.name = battleObj.battleName;
          battleList[socket.id] = battle;
-   
-         callback(socket);
       });
    });
 }
 
-exports.findBattle = (socket) => {
+const findBattle = (socket) => {
    socket.on("findBattle", () =>  {
       
       let battlesArray = [];
@@ -70,7 +71,7 @@ exports.findBattle = (socket) => {
    });
 }
 
-exports.joinBattle = (socket, callback) => {
+const joinBattle = (socket) => {
    socket.on("joinBattle", (joinPlayerObj) =>  {
       
       this.check(joinPlayerObj, "object", () => {
@@ -88,14 +89,12 @@ exports.joinBattle = (socket, callback) => {
             // Sending joinPlayer data > to ownerPlayer 
             let ownerSocket = socketList[joinPlayerObj.id];
             ownerSocket.emit("enemyJoined", currentBattle.joinPlayer);
-      
-            callback(socket);
          }
       });
    });
 }
 
-exports.leaveBattle = (socket) => {
+const leaveBattle = (socket) => {
    socket.on("disconnect", () => {
       
       for(let i in battleList) {
@@ -103,8 +102,12 @@ exports.leaveBattle = (socket) => {
    
          // If leaving player is battle owner
          if(socket.id === currentBattle.ownerPlayer.id) {
-            let joinSocket = socketList[currentBattle.joinPlayer.id];
-            if(joinSocket) joinSocket.emit("battleEnded", "OwnerPlayer left battle");
+
+            if(currentBattle.joinPlayer) {
+               let joinSocket = socketList[currentBattle.joinPlayer.id];
+               joinSocket.emit("battleEnded", "OwnerPlayer left battle");
+            }
+
             delete battleList[i];
          }
 
@@ -118,4 +121,12 @@ exports.leaveBattle = (socket) => {
       delete socketList[socket.id];
       console.log("Player Disconnected !");
    });
+}
+
+exports.init = (socket) => {
+   initSocketList(socket);
+   createBattle(socket);
+   findBattle(socket);
+   joinBattle(socket);
+   leaveBattle(socket);
 }
