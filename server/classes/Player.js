@@ -5,7 +5,8 @@
 // Player Class
 // =====================================================================
 class Player {
-   constructor(playerObj) {
+   constructor(id, playerObj) {
+      this.id = id;
       this.name = playerObj.playerName;
       this.health = playerObj.playerHealth;
       this.damage = playerObj.playerDamage;

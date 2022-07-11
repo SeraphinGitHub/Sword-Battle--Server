@@ -25,17 +25,27 @@ exports.initSocketList = (socket) => {
    socketList[socket.id] = socket;
 }
 
+exports.check = (data, dataType, callback) => {
+   
+   if(data && typeof(data) === dataType) {
+      callback();
+   }
+}
+
 exports.createBattle = (socket, callback) => {
    socket.on("createBattle", (battleObj) =>  {
+   
+      this.check(battleObj, "object", () => {
 
-      const battle = new Battle(socket.id);
-      const player = new Player(battleObj);
-
-      battle.player = player;
-      battle.name = battleObj.battleName;
-      battleList[socket.id] = battle;
-
-      callback(socket);
+         const battle = new Battle(socket.id);
+         const creatingPlayer = new Player(socket.id, battleObj);
+   
+         battle.ownerPlayer = creatingPlayer;
+         battle.name = battleObj.battleName;
+         battleList[socket.id] = battle;
+   
+         callback(socket);
+      });
    });
 }
 
@@ -43,15 +53,17 @@ exports.findBattle = (socket) => {
    socket.on("findBattle", () =>  {
       
       let battlesArray = [];
-
+      
+      // Sending battle light pack 
       Object.values(battleList).forEach(battle => {
-
+      
          let battleLight = {
             id : battle.id,
-            name : battle.player.name,
+            name : battle.ownerPlayer.name,
          };
 
-         if(!battle.enemy) battlesArray.push(battleLight);
+         // Sending only joinable battle
+         if(!battle.joinPlayer) battlesArray.push(battleLight);
       });
 
       socket.emit("battleFound", battlesArray);
@@ -59,30 +71,51 @@ exports.findBattle = (socket) => {
 }
 
 exports.joinBattle = (socket, callback) => {
-   socket.on("joinBattle", (enemyObj) =>  {
+   socket.on("joinBattle", (joinPlayerObj) =>  {
       
-      let curentBattle = battleList[enemyObj.id];
-      
-      if(!curentBattle.enemy) {
-         const player = new Player(enemyObj);
+      this.check(joinPlayerObj, "object", () => {
+         let currentBattle = battleList[joinPlayerObj.id];
 
-         curentBattle.enemy = player;
-         socket.emit("battleJoined", curentBattle.player);
-         
-         let otherSocket = socketList[enemyObj.id];
-         otherSocket.emit("enemyJoined", curentBattle.enemy);
-   
-         callback(socket);
-      }
-      else return;
+         // If battle exist & no second player
+         if(currentBattle && !currentBattle.joinPlayer) {
+
+            const joiningPlayer = new Player(socket.id, joinPlayerObj);
+            currentBattle.joinPlayer = joiningPlayer;
+
+            // Sending ownerPlayer data > to joinPlayer 
+            socket.emit("battleJoined", currentBattle.ownerPlayer);
+            
+            // Sending joinPlayer data > to ownerPlayer 
+            let ownerSocket = socketList[joinPlayerObj.id];
+            ownerSocket.emit("enemyJoined", currentBattle.joinPlayer);
+      
+            callback(socket);
+         }
+      });
    });
 }
 
 exports.leaveBattle = (socket) => {
    socket.on("disconnect", () => {
+      
+      for(let i in battleList) {
+         let currentBattle = battleList[i];
    
-      // console.log("Player Disconnected !");
+         // If leaving player is battle owner
+         if(socket.id === currentBattle.ownerPlayer.id) {
+            let joinSocket = socketList[currentBattle.joinPlayer.id];
+            if(joinSocket) joinSocket.emit("battleEnded", "OwnerPlayer left battle");
+            delete battleList[i];
+         }
+
+         // If leaving player is NOT battle owner
+         else {
+            socket.emit("battleEnded", "You left battle");
+            currentBattle.joinPlayer = undefined;
+         }
+      }
+      
       delete socketList[socket.id];
-      if(battleList[socket.id]) delete battleList[socket.id];
+      console.log("Player Disconnected !");
    });
 }

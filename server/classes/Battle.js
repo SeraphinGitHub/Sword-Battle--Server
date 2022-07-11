@@ -8,8 +8,8 @@ class Battle {
    constructor(id) {
       this.id = id;
       this.name;
-      this.player;
-      this.enemy;
+      this.ownerPlayer;
+      this.joinPlayer;
    }
 }
 
