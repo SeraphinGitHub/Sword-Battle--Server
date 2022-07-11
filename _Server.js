@@ -13,16 +13,22 @@ const io = new Server(server);
 // =====================================================================
 // Import Files
 // =====================================================================
-const gameHandler = require("./scripts/_GameHandler.js");
+const gameHandler = require("./server/scripts/gameHandler.js");
+const playerHandler = require("./server/scripts/playerHandler.js");
 
 
 // =====================================================================
 // App init
 // =====================================================================
 io.on("connection", socket => {
-   gameHandler.left(socket);
-   gameHandler.right(socket);
-   gameHandler.attack(socket);
+
+   console.log("Player Connected !");
+   
+   gameHandler.initSocketList(socket);
+   gameHandler.createBattle(socket, playerHandler.initBehavior);
+   gameHandler.findBattle(socket);
+   gameHandler.joinBattle(socket, playerHandler.initBehavior);
+   gameHandler.leaveBattle(socket);
 });
 
 server.listen(process.env.PORT || 3000, () => {
