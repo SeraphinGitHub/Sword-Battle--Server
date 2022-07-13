@@ -34,9 +34,6 @@ const initSocketList = (socket) => {
 
 const createBattle = (socket) => {
    socket.on("createBattle", (battleObj) =>  {
-   
-      console.log(battleObj); // ******************************************************
-      // ==> [ 'Séraphin', 'Battle 1' ]
 
       this.check(battleObj, "object", () => {
 
@@ -46,6 +43,8 @@ const createBattle = (socket) => {
          battle.ownerPlayer = creatingPlayer;
          battle.name = battleObj.battleName;
          battleList[socket.id] = battle;
+
+         console.log(battleObj); // ******************************************************
       });
    });
 }
@@ -53,21 +52,20 @@ const createBattle = (socket) => {
 const findBattle = (socket) => {
    socket.on("findBattle", () =>  {
       
-      let battlesArray = [];
-      
       // Sending battle light pack 
       Object.values(battleList).forEach(battle => {
       
-         let battleLight = {
-            id : battle.id,
-            name : battle.ownerPlayer.name,
-         };
-
          // Sending only joinable battle
-         if(!battle.joinPlayer) battlesArray.push(battleLight);
-      });
+         if(!battle.joinPlayer) {
 
-      socket.emit("battleFound", battlesArray);
+            let battleLight = {
+               id : `${battle.id}`,
+               name : battle.name,
+            };
+   
+            socket.emit("battleFound", battleLight);
+         }
+      });
    });
 }
 

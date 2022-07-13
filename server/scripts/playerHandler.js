@@ -20,15 +20,12 @@ const right = (socket) => {
 
 const attack = (socket) => {
    
-   socket.on("AttackingStrike", (data) => {
-      // socket.emit("Get", data);
-      console.log(data); // ******************************************************
+   socket.on("AttackStrike", (data) => {
+      socket.emit("Get", data);
    });
 
-   socket.on("AttackingEstoc", (data) => {
-      // socket.emit("Get", data);
-      socket.emit("azerty", ["Abdoul", "123", "false"]);
-      // socket.emit("azerty", "Abdoul");
+   socket.on("AttackEstoc", (data) => {
+      socket.emit("Get", data);
    });
 }
 
