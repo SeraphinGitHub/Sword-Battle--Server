@@ -12,7 +12,11 @@ const Player = require("../classes/Player.js");
 // Global Variables
 // =====================================================================
 let battleID = 0;
-let battleList = {};
+let battleList = {
+   '1': { id: 1, ownerPlayer: { id: 1 }, name: 'BattleField 1' },
+   '2': { id: 2, ownerPlayer: { id: 2 }, name: 'War of worlds' },
+   '3': { id: 3, ownerPlayer: { id: 3 }, name: 'Sunshine' },
+};
 let socketList = {};
 
 
@@ -49,24 +53,25 @@ const createBattle = (socket) => {
    });
 }
 
-const findBattle = (socket) => {
-   socket.on("findBattle", () =>  {
-      
-      // Sending battle light pack 
-      Object.values(battleList).forEach(battle => {
-      
-         // Sending only joinable battle
-         if(!battle.joinPlayer) {
+exports.findBattle = (req, res, next) => {
 
-            let battleLight = {
-               id : `${battle.id}`,
-               name : battle.name,
-            };
+   let battlesArray = [];
    
-            socket.emit("battleFound", battleLight);
-         }
-      });
+   // Sending battle light pack 
+   Object.values(battleList).forEach(battle => {
+      
+      let battleLight = {
+         id : `${battle.id}`,
+         name : battle.name,
+      };
+
+      // Sending only joinable battle
+      if(!battle.joinPlayer) battlesArray.push(battleLight);
    });
+
+   res.send(JSON.stringify(battlesArray));
+
+   next();
 }
 
 const joinBattle = (socket) => {
@@ -124,7 +129,6 @@ const leaveBattle = (socket) => {
 exports.init = (socket) => {
    initSocketList(socket);
    createBattle(socket);
-   findBattle(socket);
    joinBattle(socket);
    leaveBattle(socket);
 }

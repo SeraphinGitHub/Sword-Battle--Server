@@ -8,6 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
+const bodyParser = require("body-parser");
 
 
 // =====================================================================
@@ -20,6 +21,11 @@ const playerHandler = require("./server/scripts/playerHandler.js");
 // =====================================================================
 // App init
 // =====================================================================
+app.get("/", (req, res, next) => gameHandler.findBattle(req, res, next));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
+
 io.on("connection", socket => {
 
    console.log("Player Connected !");
