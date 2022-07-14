@@ -16,8 +16,40 @@ let battleList = {
    '1': { id: 1, ownerPlayer: { id: 1 }, name: 'BattleField 1' },
    '2': { id: 2, ownerPlayer: { id: 2 }, name: 'War of worlds' },
    '3': { id: 3, ownerPlayer: { id: 3 }, name: 'Sunshine' },
+   '4': { id: 4, ownerPlayer: { id: 4 }, name: 'Battle 123' },
+   '5': { id: 5, ownerPlayer: { id: 5 }, name: 'Abdoul Wesh' },
+   // '6': { id: 6, ownerPlayer: { id: 6 }, name: 'Angtoria' },
+   // '7': { id: 7, ownerPlayer: { id: 7 }, name: 'Warmen' },
+   // '8': { id: 8, ownerPlayer: { id: 8 }, name: 'NightWish' },
+   // '9': { id: 9, ownerPlayer: { id: 9 }, name: 'Maverick' },
+   // '10': { id: 10, ownerPlayer: { id: 10 }, name: 'Bruce Willis' },
+   // '11': { id: 11, ownerPlayer: { id: 11 }, name: 'Tom Cruise' },
+   // '12': { id: 12, ownerPlayer: { id: 12 }, name: 'Enshine' },
+   // '13': { id: 13, ownerPlayer: { id: 13 }, name: 'Saul Goodman' },
+   // '14': { id: 14, ownerPlayer: { id: 14 }, name: 'Scarie Movie' },
+   // '15': { id: 15, ownerPlayer: { id: 15 }, name: 'Marlon Wayans' },
 };
 let socketList = {};
+
+// setTimeout(() => {
+   
+//    battleList['10'] = { id: 10, ownerPlayer: { id: 10 }, name: 'XXX XXX' };
+//    battleList['11'] = { id: 11, ownerPlayer: { id: 11 }, name: 'Azerty 789' };
+//    console.log("Battle Added !"); // ******************************************************
+
+// }, 10000);
+
+
+setTimeout(() => {
+   
+   delete battleList['1'];
+   delete battleList['3'];
+   delete battleList['5'];
+
+   console.log("Battle Removed !"); // ******************************************************
+
+}, 10000);
+
 
 
 // =====================================================================

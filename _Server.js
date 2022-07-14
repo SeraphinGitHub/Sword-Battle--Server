@@ -21,7 +21,7 @@ const playerHandler = require("./server/scripts/playerHandler.js");
 // =====================================================================
 // App init
 // =====================================================================
-app.get("/", (req, res, next) => gameHandler.findBattle(req, res, next));
+app.get("/find-battle", (req, res, next) => gameHandler.findBattle(req, res, next));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
