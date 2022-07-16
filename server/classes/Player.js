@@ -8,9 +8,7 @@ class Player {
    constructor(id, playerObj) {
       this.id = id;
       this.name = playerObj.playerName;
-      this.health = playerObj.playerHealth;
-      this.damage = playerObj.playerDamage;
-      this.posX = playerObj.playerPosX;
+      this.color = playerObj.playerColor;
       this.side = playerObj.playerSide;
    }
 }

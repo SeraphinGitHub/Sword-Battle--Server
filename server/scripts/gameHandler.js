@@ -13,11 +13,17 @@ const Player = require("../classes/Player.js");
 // =====================================================================
 let battleID = 0;
 let battleList = {
-   '1': { id: 1, hostPlayer: { id: 1 }, name: 'B1 Battle' },
-   '2': { id: 2, hostPlayer: { id: 2 }, name: 'B2 Maverick' },
-   '3': { id: 3, hostPlayer: { id: 3 }, name: 'B3 Shylhnar' },
+   // '1': { id: 1, hostPlayer: { id: 1 }, name: 'B1 Battle' },
+   // '2': { id: 2, hostPlayer: { id: 2 }, name: 'B2 Maverick' },
+   // '3': { id: 3, hostPlayer: { id: 3 }, name: 'B3 Shylhnar' },
 };
 let socketList = {};
+
+setTimeout(() => {
+   battleList["1"].joinPlayer.id = 2;
+   console.log("Player joined !"); // ******************************************************
+}, 12000);
+
 
 
 
@@ -46,15 +52,17 @@ const createBattle = (socket) => {
          const creatingPlayer = new Player(socket.id, battleObj);
    
          battle.hostPlayer = creatingPlayer;
+         battle.joinPlayer = {id: ""};
          battle.name = battleObj.battleName;
          battleList[socket.id] = battle;
 
-         console.log(battleObj); // ******************************************************
+         // socket.emit("battleCreated", "Battle created !");
+         socket.emit("battleCreated", battleList);
       });
    });
 }
 
-exports.findBattle = (req, res, next) => {
+const findBattle = (socket) => {
 
    let battlesArray = [];
    
@@ -70,9 +78,7 @@ exports.findBattle = (req, res, next) => {
       if(!battle.joinPlayer) battlesArray.push(battleLight);
    });
 
-   res.send(JSON.stringify(battlesArray));
-
-   next();
+   socket.emit("findBattle", battlesArray);
 }
 
 const joinBattle = (socket) => {
@@ -130,6 +136,7 @@ const leaveBattle = (socket) => {
 exports.init = (socket) => {
    initSocketList(socket);
    createBattle(socket);
+   findBattle(socket);
    joinBattle(socket);
    leaveBattle(socket);
 }
