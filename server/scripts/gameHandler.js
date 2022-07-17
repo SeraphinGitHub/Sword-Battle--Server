@@ -19,13 +19,6 @@ let battleList = {
 };
 let socketList = {};
 
-setTimeout(() => {
-   battleList["1"].joinPlayer.id = 2;
-   console.log("Player joined !"); // ******************************************************
-}, 12000);
-
-
-
 
 // =====================================================================
 // Methods
@@ -51,13 +44,11 @@ const createBattle = (socket) => {
          const battle = new Battle(socket.id);
          const creatingPlayer = new Player(socket.id, battleObj);
    
-         battle.hostPlayer = creatingPlayer;
-         battle.joinPlayer = {id: ""};
          battle.name = battleObj.battleName;
+         battle.hostPlayer = creatingPlayer;
          battleList[socket.id] = battle;
 
-         // socket.emit("battleCreated", "Battle created !");
-         socket.emit("battleCreated", battleList);
+         socket.emit("battleCreated", "Battle created !");
       });
    });
 }
@@ -85,7 +76,7 @@ const joinBattle = (socket) => {
    socket.on("joinBattle", (joinPlayerObj) =>  {
       
       this.check(joinPlayerObj, "object", () => {
-         let currentBattle = battleList[joinPlayerObj.id];
+         let currentBattle = battleList[joinPlayerObj.battleID];
 
          // If battle exist & no second player
          if(currentBattle && !currentBattle.joinPlayer) {
@@ -97,8 +88,8 @@ const joinBattle = (socket) => {
             socket.emit("battleJoined", currentBattle.hostPlayer);
             
             // Sending joinPlayer data > to hostPlayer 
-            let ownerSocket = socketList[joinPlayerObj.id];
-            ownerSocket.emit("enemyJoined", currentBattle.joinPlayer);
+            let hostSocket = socketList[joinPlayerObj.battleID];
+            hostSocket.emit("enemyJoined", currentBattle.joinPlayer);
          }
       });
    });
@@ -110,21 +101,25 @@ const leaveBattle = (socket) => {
       for(let i in battleList) {
          let currentBattle = battleList[i];
    
-         // If leaving player host battle
+         // If leaving player is hostPlayer
          if(socket.id === currentBattle.hostPlayer.id) {
 
+            // If another player has joined
             if(currentBattle.joinPlayer) {
                let joinSocket = socketList[currentBattle.joinPlayer.id];
-               joinSocket.emit("battleEnded", "Host player left battle");
+               joinSocket.emit("battleEnded", { isHostPlayer: true });
             }
-
+            
+            socket.emit("battleEnded", { isHostPlayer: false });
             delete battleList[i];
          }
-
-         // If leaving player joined battle
+         
+         // If leaving player is joinPlayer
          else {
-            socket.emit("battleEnded", "You left battle");
             currentBattle.joinPlayer = undefined;
+            let hostSocket = socketList[currentBattle.hostPlayer.id];
+            hostSocket.emit("battleEnded", { isJoinPlayer: true });
+            socket.emit("battleEnded", { isJoinPlayer: false });
          }
       }
       
