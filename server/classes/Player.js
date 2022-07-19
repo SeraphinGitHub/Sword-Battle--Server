@@ -8,8 +8,9 @@ class Player {
    constructor(id, playerObj) {
       this.id = id;
       this.name = playerObj.name;
-      this.color = playerObj.color;
       this.side = playerObj.side;
+      this.hair = playerObj.hair;
+      this.color = playerObj.color;
    }
 }
 
