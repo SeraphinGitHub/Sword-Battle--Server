@@ -73,24 +73,34 @@ const findBattle = (socket) => {
 }
 
 const joinBattle = (socket) => {
-   socket.on("joinBattle", (joinPlayerObj) =>  {
-      
-      this.check(joinPlayerObj, "object", () => {
-         let currentBattle = battleList[joinPlayerObj.battleID];
 
-         // If battle exist & no second player
-         if(currentBattle && !currentBattle.joinPlayer) {
+   let battleToJoin;
 
-            const joiningPlayer = new Player(socket.id, joinPlayerObj);
-            currentBattle.joinPlayer = joiningPlayer;
+   socket.on("joinBattleRequest", (battleID) =>  {
+      this.check(battleID, "string", () => {
+
+         battleToJoin = battleList[battleID];
+
+         // If battle exist
+         if(battleToJoin
+         && battleToJoin.hostPlayer
+         && !battleToJoin.joinPlayer) {
 
             // Sending hostPlayer data > to joinPlayer 
-            socket.emit("battleJoined", currentBattle.hostPlayer);
-            
-            // Sending joinPlayer data > to hostPlayer 
-            let hostSocket = socketList[joinPlayerObj.battleID];
-            hostSocket.emit("enemyJoined", currentBattle.joinPlayer);
+            socket.emit("joinBattleAccepted", battleToJoin.hostPlayer);
          }
+      });
+   });
+
+   socket.on("joinBattle", (joinPlayerObj) =>  {
+      this.check(joinPlayerObj, "object", () => {
+
+         const joiningPlayer = new Player(socket.id, joinPlayerObj);
+         battleToJoin.joinPlayer = joiningPlayer;
+         
+         // Sending joinPlayer data > to hostPlayer 
+         let hostSocket = socketList[battleToJoin.id];
+         hostSocket.emit("enemyJoined", battleToJoin.joinPlayer);
       });
    });
 }

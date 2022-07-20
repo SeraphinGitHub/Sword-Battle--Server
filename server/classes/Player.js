@@ -10,7 +10,8 @@ class Player {
       this.name = playerObj.name;
       this.side = playerObj.side;
       this.hair = playerObj.hair;
-      this.color = playerObj.color;
+      this.hairColor = playerObj.hairColor;
+      this.bodyColor = playerObj.bodyColor;
    }
 }
 
