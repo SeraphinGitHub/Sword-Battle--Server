@@ -14,7 +14,6 @@ const io = new Server(server);
 // Import Files
 // =====================================================================
 const gameHandler = require("./server/scripts/gameHandler.js");
-const playerHandler = require("./server/scripts/playerHandler.js");
 
 
 // =====================================================================
@@ -25,7 +24,6 @@ io.on("connection", socket => {
    console.log("Player Connected !");
    
    gameHandler.init(socket);
-   playerHandler.init(socket);
 });
 
 server.listen(process.env.PORT || 3000, () => {

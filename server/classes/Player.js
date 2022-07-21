@@ -9,9 +9,9 @@ class Player {
       this.id = id;
       this.name = playerObj.name;
       this.side = playerObj.side;
-      this.hair = playerObj.hair;
+      this.hairStyle = playerObj.hairStyle;
       this.hairColor = playerObj.hairColor;
-      this.bodyColor = playerObj.bodyColor;
+      this.tabardColor = playerObj.tabardColor;
    }
 }
 
