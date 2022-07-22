@@ -19,12 +19,6 @@ let battleList = {
 };
 let socketList = {};
 
-const channelsArray = [
-   "Position",
-   "AttackStrike",
-   "AttackEstoc",
-];
-
 
 // =====================================================================
 // Methods
@@ -159,19 +153,17 @@ const battleSync = (socket, battle) => {
    let hostSocket = socketList[battle.hostPlayer.id];
    let joinSocket = socketList[battle.joinPlayer.id];
 
-   channelsArray.forEach(channel => {
-      socket.on(channel, (data) => {
+   socket.on("ServerSync", (data) => {
 
-         console.log(data); // ******************************************************
+      console.log(data); // ******************************************************
 
-         // If socket is hostPlayer > send data to joinPlayer
-         if(socket.id === battle.hostPlayer.id) {
-            joinSocket.emit(`Get_${channel}`, {data : data});
-         }
+      // If socket is hostPlayer > send data to joinPlayer
+      if(socket.id === battle.hostPlayer.id) {
+         joinSocket.emit(`Get_${channel}`, {data : data});
+      }
 
-         // If socket is joinPlayer > send data to hostPlayer
-         if(socket.id === battle.joinPlayer.id) hostSocket.emit(`Get_${channel}`, {data : data});
-      });
+      // If socket is joinPlayer > send data to hostPlayer
+      if(socket.id === battle.joinPlayer.id) hostSocket.emit(`Get_${channel}`, {data : data});
    });
 }
 
@@ -182,4 +174,10 @@ exports.init = (socket) => {
    findBattle(socket);
    joinBattle(socket);
    leaveBattle(socket);
+
+
+   socket.on("ServerSync", (data) => {
+
+      console.log(data); // ******************************************************
+   });
 }
