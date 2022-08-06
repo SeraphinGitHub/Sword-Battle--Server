@@ -30,6 +30,8 @@ const initSocketList = (socket) => {
    battleID++;
    socket.id = battleID;
    socketList[socket.id] = socket;
+
+   socket.emit("connected");
 }
 
 const createBattle = (socket) => {
