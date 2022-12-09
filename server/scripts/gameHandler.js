@@ -30,6 +30,8 @@ const initSocketList = (socket) => {
    battleID++;
    socket.id = battleID;
    socketList[socket.id] = socket;
+
+   socket.emit("connected");
 }
 
 const createBattle = (socket) => {
@@ -44,28 +46,30 @@ const createBattle = (socket) => {
          battle.hostPlayer = hostPlayer;
          battleList[socket.id] = battle;
 
-         socket.emit("battleCreated", "Battle created !");
+         socket.emit("battleCreated", socket.id);
       });
    });
 }
 
 const findBattle = (socket) => {
+   socket.on("findBattle", () => {
 
-   let battlesArray = [];
-   
-   // Sending battle light pack 
-   Object.values(battleList).forEach(battle => {
+      let battlesArray = [];
       
-      let battleLight = {
-         id : `${battle.id}`,
-         name : battle.name,
-      };
+      // Sending battle light pack 
+      Object.values(battleList).forEach(battle => {
+         
+         let battleLight = {
+            id : `${battle.id}`,
+            name : battle.name,
+         };
+   
+         // Sending only joinable battle
+         if(!battle.joinPlayer) battlesArray.push(battleLight);
+      });
 
-      // Sending only joinable battle
-      if(!battle.joinPlayer) battlesArray.push(battleLight);
+      socket.emit("battleFound", battlesArray);
    });
-
-   socket.emit("findBattle", battlesArray);
 }
 
 const joinBattle = (socket) => {
@@ -102,42 +106,46 @@ const joinBattle = (socket) => {
          
          // Battle Sync between players
          battleSync(socket, hostSocket);
+         battleLoose(socket, hostSocket);
       });
    });
    
 }
 
 const leaveBattle = (socket) => {
-   socket.on("disconnect", () => {
-      
-      for(let i in battleList) {
-         let currentBattle = battleList[i];
+   socket.on("EndBattle", (battleID) => {
    
-         // If leaving player is hostPlayer
-         if(socket.id === currentBattle.hostPlayer.id) {
+      this.check(battleID, "string", () => {
+         let currentBattle = battleList[battleID];
 
-            // If another player has joined
-            if(currentBattle.joinPlayer) {
-               let joinSocket = socketList[currentBattle.joinPlayer.id];
-               joinSocket.emit("battleEnded", { isHostPlayer: true });
+         if(currentBattle && currentBattle.hostPlayer.id) {
+
+            // If leaving player is hostPlayer
+            if(socket.id === currentBattle.hostPlayer.id) {
+   
+               // If another player has joined
+               if(currentBattle.joinPlayer) {
+                  let joinSocket = socketList[currentBattle.joinPlayer.id];
+                  joinSocket.emit("battleEnded", { isHostPlayer: true });
+               }
+               
+               delete battleList[battleID];
             }
             
-            socket.emit("battleEnded", { isHostPlayer: false });
-            delete battleList[i];
+            // If leaving player is joinPlayer
+            else {
+               currentBattle.joinPlayer = undefined;
+               let hostSocket = socketList[currentBattle.hostPlayer.id];
+               hostSocket.emit("battleEnded", { isJoinPlayer: true });
+            }
          }
-         
-         // If leaving player is joinPlayer
-         else {
-            currentBattle.joinPlayer = undefined;
-            let hostSocket = socketList[currentBattle.hostPlayer.id];
-            hostSocket.emit("battleEnded", { isJoinPlayer: true });
-            socket.emit("battleEnded", { isJoinPlayer: false });
-         }
-      }
-      
+      });
+   });
+
+   socket.on("disconnect", () => {
       delete socketList[socket.id];
       console.log("Player Disconnected !");
-   });
+   })
 }
 
 
@@ -155,6 +163,18 @@ const battleSync = (socket, hostSocket) => {
    hostSocket.on("ServerSync", (data) => {
       socket.emit("ReceiveServerSync", data);
    });
+}
+
+const battleLoose = (socket, hostSocket) => {
+
+   socket.on("battleLoose", (winnerName) =>  {
+      this.check(winnerName, "string", () => {
+
+         socket.emit("battleReset", winnerName);
+         hostSocket.emit("battleReset", winnerName);
+      });
+   });
+   
 }
 
 
