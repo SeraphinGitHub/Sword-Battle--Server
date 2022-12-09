@@ -119,7 +119,6 @@ const leaveBattle = (socket) => {
          let currentBattle = battleList[battleID];
 
          if(currentBattle && currentBattle.hostPlayer.id) {
-
             // If leaving player is hostPlayer
             if(socket.id === currentBattle.hostPlayer.id) {
    
