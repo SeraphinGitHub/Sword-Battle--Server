@@ -20,10 +20,21 @@ const gameHandler = require("./server/scripts/gameHandler.js");
 // App init
 // =====================================================================
 io.on("connection", socket => {
-
-   console.log("Player Connected !");
    
-   gameHandler.init(socket);
+   socket.on("checkToken", (securityToken) => {
+      gameHandler.check(securityToken, "string", () => {
+         
+         if(securityToken === process.env.SECURITY_TOKEN) {
+            gameHandler.init(socket);
+            console.log("Player Connected !");
+         }
+
+         else {
+            socket.emit("connectionFailed");
+            console.log("Authentification failed !");
+         }
+      });
+   });
 });
 
 server.listen(process.env.PORT || 3000, () => {
