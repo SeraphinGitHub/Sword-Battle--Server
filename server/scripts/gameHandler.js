@@ -158,56 +158,6 @@ const battleLoose = (socket, hostSocket) => {
    });
 }
 
-const savePlayerStats = (socket) => {
-
-   socket.on("savePlayerStats", (saveObj) =>  {
-      this.check(saveObj, "object", () => {
-
-         let currentBattle = battleList[saveObj.battleID];
-         let host = currentBattle.hostPlayer;
-         let join = currentBattle.joinPlayer;
-         
-         if(currentBattle) {
-            channelToSave(socket, host, join, "hostPlayer", saveObj);
-            channelToSave(socket, join, host, "joinPlayer", saveObj);
-         }
-      });
-   });
-}
-
-const channelToSave = (socket, localPlayer, enemyPlayer, status, saveObj) => {
-
-   if(localPlayer && socket.id === localPlayer.id) {
-      
-      // Init join player stats
-      if(saveObj.channel === "initStats" && status === "joinPlayer") {
-         
-         if(localPlayer.healthBarValue === 0) statToSave(localPlayer.healthBarValue, "healthBar", saveObj.dataName, saveObj.dataValue);
-         if(localPlayer.shieldBarValue === 0) statToSave(localPlayer.shieldBarValue, "shieldBar", saveObj.dataName, saveObj.dataValue);
-         
-         socket.emit("usedStats", {
-            hostHealth: enemyPlayer.healthBarValue,
-            hostShield: enemyPlayer.shieldBarValue,
-            
-            joinHealth: localPlayer.healthBarValue,
-            joinShield: localPlayer.shieldBarValue
-         });
-      }
-
-
-      // Save player stats while combat
-      if(saveObj.channel === "saveStats") {
-         statToSave(localPlayer.healthBarValue, "healthBar", saveObj.dataName, saveObj.dataValue);
-         statToSave(localPlayer.shieldBarValue, "shieldBar", saveObj.dataName, saveObj.dataValue);
-      }
-   }
-}
-
-const statToSave = (playerStat, statName, dataName, dataValue) => {
-
-   if(dataName === statName) playerStat = dataValue;
-}
-
 
 // =====================================================================
 // Syncronization
@@ -232,5 +182,4 @@ exports.init = (socket) => {
    findBattle(socket);
    joinBattle(socket);
    leaveBattle(socket);
-   savePlayerStats(socket);
 }
