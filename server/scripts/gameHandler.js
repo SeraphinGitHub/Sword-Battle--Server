@@ -149,12 +149,10 @@ const leaveBattle = (socket) => {
 
 const battleLoose = (socket, hostSocket) => {
 
-   socket.on("battleLoose", (winnerName) =>  {
-      this.check(winnerName, "string", () => {
-
-         socket.emit("battleReset", winnerName);
-         hostSocket.emit("battleReset", winnerName);
-      });
+   socket.on("battleLoose", () =>  {
+      
+      socket.emit("battleReset");
+      hostSocket.emit("battleReset");
    });
 }
 
