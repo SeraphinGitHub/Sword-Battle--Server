@@ -31,7 +31,7 @@ const initSocketList = (socket) => {
    socket.id = battleID;
    socketList[socket.id] = socket;
 
-   socket.emit("connected");
+   socket.emit("authSucces");
 }
 
 const createBattle = (socket) => {
@@ -76,7 +76,7 @@ const joinBattle = (socket) => {
 
    let battleToJoin;
 
-   socket.on("joinBattleRequest", (battleID) =>  {
+   socket.on("joinRequest", (battleID) =>  {
       this.check(battleID, "string", () => {
 
          battleToJoin = battleList[battleID];
@@ -87,7 +87,7 @@ const joinBattle = (socket) => {
          && !battleToJoin.joinPlayer) {
 
             // Sending hostPlayer data > to joinPlayer 
-            socket.emit("joinBattleAccepted", battleToJoin.hostPlayer);
+            socket.emit("joinAccepted", battleToJoin.hostPlayer);
          }
       });
    });
@@ -164,12 +164,12 @@ const battleSync = (socket, hostSocket) => {
 
    // Send JoinPlayer's data to HostPlayer
    socket.on("ServerSync", (data) => {
-      hostSocket.emit("ReceiveServerSync", data);
+      hostSocket.emit("ReceiveSync", data);
    });
 
    // Send HostPlayer's data to JoinPlayer
    hostSocket.on("ServerSync", (data) => {
-      socket.emit("ReceiveServerSync", data);
+      socket.emit("ReceiveSync", data);
    });
 }
 

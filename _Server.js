@@ -21,6 +21,8 @@ const gameHandler = require("./server/scripts/gameHandler.js");
 // =====================================================================
 io.on("connection", socket => {
    
+   socket.emit("connected");
+
    socket.on("checkToken", (securityToken) => {
       gameHandler.check(securityToken, "string", () => {
          
@@ -30,7 +32,7 @@ io.on("connection", socket => {
          }
 
          else {
-            socket.emit("connectionFailed");
+            socket.emit("authFailed");
             console.log("Authentification failed !");
          }
       });
