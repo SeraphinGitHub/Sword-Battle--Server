@@ -167,9 +167,18 @@ const battleSync = (socket, hostSocket) => {
       hostSocket.emit("ReceiveSync", data);
    });
 
+   socket.on("EnemyDamage", (data) => {
+      hostSocket.emit("GetDamages", data);
+   });
+
+   
    // Send HostPlayer's data to JoinPlayer
    hostSocket.on("ServerSync", (data) => {
       socket.emit("ReceiveSync", data);
+   });
+
+   hostSocket.on("EnemyDamage", (data) => {
+      socket.emit("GetDamages", data);
    });
 }
 
